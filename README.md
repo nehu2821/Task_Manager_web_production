@@ -3,7 +3,7 @@
 A full-stack web application for teams to manage projects and tasks with role-based access control. Built as part of the Ethara AI candidate nomination assignment.
 
 **🌐 Live URL:** https://web-production-99dd0.up.railway.app
-**📦 Repository:** https://github.com/HarnoorXtiet/Task-Manager
+**📦 Repository:** 
 ---
 
 ## Features
@@ -178,7 +178,3 @@ task-manager/
 - Task comments and activity log
 - JWT auth for the API for true mobile/SPA support
 - Drag-and-drop kanban board view
-
-## Author
-
-Built by Harnoor for the Ethara AI Software Engineer assessment.
