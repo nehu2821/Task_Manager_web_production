@@ -1,0 +1,101 @@
+{% extends 'core/base.html' %}
+{% block title %}Dashboard — TaskFlow{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Hey, {{ user.username }}.</h1>
+        <p class="page-subtitle">{% if user.is_admin %}Admin overview of all your projects.{% else %}Your tasks and projects.{% endif %}</p>
+    </div>
+    {% if user.is_admin %}
+    <a href="{% url 'project_create' %}" class="btn">+ New project</a>
+    {% endif %}
+</div>
+
+<div class="grid grid-4">
+    <div class="stat-card">
+        <div class="stat-label">Projects</div>
+        <div class="stat-value">{{ stats.total_projects }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">My tasks</div>
+        <div class="stat-value">{{ stats.total_tasks }}</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value">{{ stats.done }}</div>
+    </div>
+    <div class="stat-card danger">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value">{{ stats.overdue }}</div>
+    </div>
+</div>
+
+{% if overdue_tasks %}
+<h2 class="section-title">⚠ Overdue tasks</h2>
+<ul class="task-list">
+    {% for task in overdue_tasks %}
+    <li class="task-row">
+        <div class="task-row-main">
+            <div class="task-row-title">{{ task.title }}</div>
+            <div class="task-row-meta">
+                <span>{{ task.project.name }}</span>
+                <span class="pill pill-overdue">Due {{ task.due_date }}</span>
+            </div>
+        </div>
+        <div class="task-row-actions">
+            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-secondary">Open</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<h2 class="section-title">Your projects</h2>
+{% if projects %}
+<div class="grid grid-3">
+    {% for project in projects %}
+    <a href="{% url 'project_detail' project.pk %}" class="project-card-link">
+        <div class="card project-card">
+            <h3>{{ project.name }}</h3>
+            <p>{{ project.description|default:"No description"|truncatechars:80 }}</p>
+            {% with stats=project.task_stats %}
+            <div class="project-card-stats">
+                <span><strong>{{ stats.total }}</strong> tasks</span>
+                <span><strong>{{ stats.done }}</strong> done</span>
+                {% if stats.overdue %}<span style="color: var(--danger);"><strong>{{ stats.overdue }}</strong> overdue</span>{% endif %}
+            </div>
+            {% endwith %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+    {% if user.is_admin %}
+    No projects yet. <a href="{% url 'project_create' %}" style="color: var(--accent); font-weight: 500;">Create your first project →</a>
+    {% else %}
+    You haven't been added to any projects yet. Ask your admin to add you.
+    {% endif %}
+</div>
+{% endif %}
+
+{% if my_tasks %}
+<h2 class="section-title">Recently assigned to you</h2>
+<ul class="task-list">
+    {% for task in my_tasks %}
+    <li class="task-row">
+        <div class="task-row-main">
+            <div class="task-row-title">{{ task.title }}</div>
+            <div class="task-row-meta">
+                <span>{{ task.project.name }}</span>
+                <span class="pill pill-{{ task.status }}">{{ task.get_status_display }}</span>
+                <span class="pill pill-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                {% if task.due_date %}<span>Due {{ task.due_date }}</span>{% endif %}
+            </div>
+        </div>
+        <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-secondary">Open</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

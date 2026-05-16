@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ task.title }} — TaskFlow{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <p class="page-subtitle" style="margin-bottom: 0.5rem;">
+            <a href="{% url 'project_detail' project.pk %}" style="color: var(--muted);">← {{ project.name }}</a>
+        </p>
+        <h1 class="page-title">{{ task.title }}</h1>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
+            <span class="pill pill-{{ task.status }}">{{ task.get_status_display }}</span>
+            <span class="pill pill-{{ task.priority }}">{{ task.get_priority_display }} priority</span>
+            {% if task.is_overdue %}<span class="pill pill-overdue">Overdue</span>{% endif %}
+        </div>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        {% if can_edit_full %}
+        <a href="{% url 'task_edit' task.pk %}" class="btn btn-secondary">Edit</a>
+        <a href="{% url 'task_delete' task.pk %}" class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);">Delete</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3 style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.75rem;">Description</h3>
+        <p>{{ task.description|default:"No description provided."|linebreaks }}</p>
+    </div>
+    <div class="card">
+        <h3 style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.75rem;">Details</h3>
+        <p style="margin-bottom: 0.5rem;"><strong>Assigned to:</strong> {{ task.assigned_to.username|default:"Unassigned" }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>Created by:</strong> {{ task.created_by.username }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>Due date:</strong> {{ task.due_date|default:"No due date" }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>Created:</strong> {{ task.created_at|date:"M d, Y" }}</p>
+        <p><strong>Last updated:</strong> {{ task.updated_at|date:"M d, Y H:i" }}</p>
+    </div>
+</div>
+
+{% if can_update_status and not can_edit_full %}
+<h2 class="section-title">Update status</h2>
+<form method="post" class="card" style="max-width: 400px;">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="{{ status_form.status.id_for_label }}">Status</label>
+        {{ status_form.status }}
+    </div>
+    <button type="submit" class="btn">Save status</button>
+</form>
+{% endif %}
+{% endblock %}

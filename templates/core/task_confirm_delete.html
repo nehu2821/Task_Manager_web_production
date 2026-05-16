@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+{% block title %}Delete task{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Delete task?</h1>
+        <p class="page-subtitle">This will permanently delete <strong>{{ task.title }}</strong>. This cannot be undone.</p>
+    </div>
+</div>
+<form method="post" style="max-width: 640px;">
+    {% csrf_token %}
+    <div style="display: flex; gap: 0.75rem;">
+        <button type="submit" class="btn btn-danger">Yes, delete</button>
+        <a href="{% url 'task_detail' task.pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

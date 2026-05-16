@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ project.name }} — TaskFlow{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <p class="page-subtitle" style="margin-bottom: 0.5rem;">
+            <a href="{% url 'project_list' %}" style="color: var(--muted);">← All projects</a>
+        </p>
+        <h1 class="page-title">{{ project.name }}</h1>
+        <p class="page-subtitle">{{ project.description|default:"No description provided." }}</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        {% if user.is_admin %}
+        <a href="{% url 'task_create' project.pk %}" class="btn">+ New task</a>
+        {% endif %}
+        {% if is_owner %}
+        <a href="{% url 'project_edit' project.pk %}" class="btn btn-secondary">Edit</a>
+        <a href="{% url 'project_delete' project.pk %}" class="btn btn-secondary" style="color: var(--danger); border-color: var(--danger);">Delete</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid grid-4">
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">{{ stats.total }}</div></div>
+    <div class="stat-card"><div class="stat-label">To Do</div><div class="stat-value">{{ stats.todo }}</div></div>
+    <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value">{{ stats.in_progress }}</div></div>
+    <div class="stat-card success"><div class="stat-label">Done</div><div class="stat-value">{{ stats.done }}</div></div>
+</div>
+
+<h2 class="section-title">Team</h2>
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+    <span class="pill pill-todo">{{ project.created_by.username }} (owner)</span>
+    {% for member in project.members.all %}
+    <span class="pill pill-todo">{{ member.username }}</span>
+    {% endfor %}
+</div>
+
+<h2 class="section-title">Tasks</h2>
+{% if tasks %}
+<ul class="task-list">
+    {% for task in tasks %}
+    <li class="task-row">
+        <div class="task-row-main">
+            <div class="task-row-title">{{ task.title }}</div>
+            <div class="task-row-meta">
+                <span class="pill pill-{{ task.status }}">{{ task.get_status_display }}</span>
+                <span class="pill pill-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                {% if task.assigned_to %}<span>→ {{ task.assigned_to.username }}</span>{% endif %}
+                {% if task.due_date %}
+                    {% if task.is_overdue %}<span class="pill pill-overdue">Overdue {{ task.due_date }}</span>
+                    {% else %}<span>Due {{ task.due_date }}</span>{% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="task-row-actions">
+            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-secondary">Open</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="empty">
+    No tasks yet.
+    {% if user.is_admin %}<a href="{% url 'task_create' project.pk %}" style="color: var(--accent); font-weight: 500;">Create the first one →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

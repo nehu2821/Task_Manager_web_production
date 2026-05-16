@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TaskFlow{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fafaf7;
+            --surface: #ffffff;
+            --border: #e8e6df;
+            --text: #1a1a1a;
+            --muted: #6b6b6b;
+            --primary: #1a1a1a;
+            --accent: #ff5c1a;
+            --success: #2d8659;
+            --warning: #c47700;
+            --danger: #c43b3b;
+            --info: #3a6dc4;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        a { color: var(--text); text-decoration: none; }
+        a:hover { color: var(--accent); }
+
+        /* Navbar */
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .navbar-brand {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.75rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+        .navbar-brand span { color: var(--accent); }
+        .navbar-links { display: flex; gap: 2rem; align-items: center; }
+        .navbar-links a {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+        .navbar-links a.active, .navbar-links a:hover { color: var(--text); }
+        .navbar-user {
+            display: flex; align-items: center; gap: 1rem;
+            font-size: 0.85rem;
+        }
+        .role-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            background: var(--text);
+            color: var(--bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            letter-spacing: 0.05em;
+        }
+        .role-badge.member { background: var(--info); }
+
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+        /* Page header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        .page-subtitle { color: var(--muted); margin-top: 0.5rem; font-size: 0.95rem; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid var(--text);
+            background: var(--text);
+            color: var(--bg);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+        .btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+        .btn-secondary { background: transparent; color: var(--text); }
+        .btn-secondary:hover { background: var(--text); color: var(--bg); }
+        .btn-danger { background: var(--danger); border-color: var(--danger); color: white; }
+        .btn-danger:hover { background: #a02828; border-color: #a02828; }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            transition: border-color 0.15s;
+        }
+        .card:hover { border-color: var(--text); }
+        .grid { display: grid; gap: 1rem; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* Stat cards */
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.25rem;
+        }
+        .stat-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            line-height: 1;
+        }
+        .stat-card.warning .stat-value { color: var(--warning); }
+        .stat-card.danger .stat-value { color: var(--danger); }
+        .stat-card.success .stat-value { color: var(--success); }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: var(--surface);
+            transition: border-color 0.15s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: var(--text);
+        }
+        .form-group .helptext { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; display: block; }
+        .form-group .errorlist { color: var(--danger); font-size: 0.8rem; margin-top: 0.3rem; list-style: none; }
+        .form-group ul { list-style: none; padding: 0; }
+        .form-group ul li label { display: inline; font-weight: 400; margin-left: 0.4rem; }
+
+        /* Status pills */
+        .pill {
+            display: inline-block;
+            padding: 0.2rem 0.65rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .pill-todo { background: #e8e6df; color: var(--text); }
+        .pill-in_progress { background: #cfe1f5; color: var(--info); }
+        .pill-done { background: #cfe9d9; color: var(--success); }
+        .pill-low { background: #e8e6df; color: var(--muted); }
+        .pill-medium { background: #fdebcb; color: var(--warning); }
+        .pill-high { background: #f5d4d4; color: var(--danger); }
+        .pill-overdue { background: var(--danger); color: white; }
+
+        /* Tables */
+        .task-list { list-style: none; }
+        .task-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color 0.15s;
+        }
+        .task-row:hover { border-color: var(--text); }
+        .task-row-main { flex: 1; min-width: 0; }
+        .task-row-title { font-weight: 500; margin-bottom: 0.25rem; }
+        .task-row-meta { font-size: 0.8rem; color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
+        .task-row-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        /* Messages */
+        .messages { margin-bottom: 1.5rem; }
+        .message {
+            padding: 0.85rem 1.25rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            border-left: 3px solid;
+        }
+        .message.success { background: #f0f8f3; border-color: var(--success); color: var(--success); }
+        .message.error { background: #fdf3f3; border-color: var(--danger); color: var(--danger); }
+        .message.info { background: #f0f5fc; border-color: var(--info); color: var(--info); }
+
+        /* Auth pages */
+        .auth-container {
+            min-height: calc(100vh - 73px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+        }
+        .auth-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .auth-subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
+        .auth-footer { margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--muted); }
+        .auth-footer a { color: var(--accent); font-weight: 500; }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+        }
+
+        /* Project card */
+        .project-card-link { text-decoration: none; color: inherit; }
+        .project-card h3 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+        .project-card p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .project-card-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .project-card-stats span strong { color: var(--text); font-size: 1rem; font-family: 'Inter', sans-serif; font-weight: 600; }
+
+        /* Section */
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'dashboard' %}" class="navbar-brand">Task<span>Flow</span></a>
+        {% if user.is_authenticated %}
+        <div class="navbar-links">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'project_list' %}">Projects</a>
+        </div>
+        <div class="navbar-user">
+            <span>{{ user.username }}</span>
+            <span class="role-badge {{ user.role }}">{{ user.role }}</span>
+            <a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a>
+        </div>
+        {% else %}
+        <div class="navbar-links">
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'signup' %}" class="btn btn-sm">Sign up</a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% block title %}Projects — TaskFlow{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">{{ projects|length }} {% if projects|length == 1 %}project{% else %}projects{% endif %}</p>
+    </div>
+    {% if user.is_admin %}<a href="{% url 'project_create' %}" class="btn">+ New project</a>{% endif %}
+</div>
+
+{% if projects %}
+<div class="grid grid-3">
+    {% for project in projects %}
+    <a href="{% url 'project_detail' project.pk %}" class="project-card-link">
+        <div class="card project-card">
+            <h3>{{ project.name }}</h3>
+            <p>{{ project.description|default:"No description"|truncatechars:100 }}</p>
+            {% with stats=project.task_stats %}
+            <div class="project-card-stats">
+                <span><strong>{{ stats.total }}</strong> tasks</span>
+                <span><strong>{{ stats.done }}</strong> done</span>
+                {% if stats.overdue %}<span style="color: var(--danger);"><strong>{{ stats.overdue }}</strong> overdue</span>{% endif %}
+            </div>
+            {% endwith %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty">No projects to show.</div>
+{% endif %}
+{% endblock %}

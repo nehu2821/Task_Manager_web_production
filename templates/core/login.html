@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+{% block title %}Login — TaskFlow{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to manage your projects and tasks.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%; justify-content: center;">Sign in</button>
+        </form>
+        <div class="auth-footer">
+            New here? <a href="{% url 'signup' %}">Create an account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
